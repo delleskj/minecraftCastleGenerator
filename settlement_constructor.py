@@ -8,7 +8,6 @@ from turtle import width
 from unittest import case
 from click import option
 from numpy import *
-from sqlalchemy import true
 from pymclevel import alphaMaterials, MCSchematic, MCLevel, BoundingBox
 from mcplatform import *
 from pymclevel.box import Vector

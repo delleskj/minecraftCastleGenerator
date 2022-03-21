@@ -1,5 +1,7 @@
 from unittest import result
 import pygame
+from docutils.nodes import sidebar
+
 from rectangleSplitter import RectangleSplitter
 from pygame.locals import *
 
@@ -11,8 +13,10 @@ clock = pygame.time.Clock()
 # Define the dimensions of screen object
 screen = pygame.display.set_mode((1000, 1000))
 
-splitter = RectangleSplitter(10, 10)
-partitions = 8
+tileNumber = 100
+splitter = RectangleSplitter(tileNumber, tileNumber)
+screenFactor = 1000 / tileNumber
+partitions = 10
 result = splitter._groundMatrix
 
 # Variable to keep our game loop running
@@ -21,24 +25,25 @@ cooldown = 0
 currentCount = 1
 
 
-
 def update(deltaTime):
 	global currentCount, cooldown, result
 	if(currentCount <= partitions):
 		cooldown += deltaTime
-		if(cooldown > 1000):
+		if(cooldown > 300):
 			cooldown = 0
 			splitter.CalculatePartition(currentCount)
 			result = splitter._groundMatrix
 			currentCount += 1
 
+
 def draw():
 	global result
 	for ix, x in enumerate(result):
 		for iz, z in enumerate(x):
-			color = ((z/(float(partitions))*255), 0, 0)
-			rect = pygame.Rect( ix*100, iz*100, 100, 100)
-			pygame.draw.rect(screen, color, rect)
+			tmp_color = ((z / (float(partitions)) * 255), 0, 0)
+			rect = pygame.Rect(ix*screenFactor, iz*screenFactor, screenFactor, screenFactor)
+			pygame.draw.rect(screen, tmp_color, rect)
+
 
 # Our game loop
 while gameOn:

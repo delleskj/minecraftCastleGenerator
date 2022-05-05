@@ -64,24 +64,24 @@ class RectangleSplitter:
         topRectStartList.append(len(self._groundMatrix[0]))
         leftRectStartList.append(len(self._groundMatrix))
 
-        print("left List: " + str(leftRectBorderCount))
-        print(leftRectStartList)
-        print("top List: " + str(topRectBorderCount))
-        print(topRectStartList)
+        # print("left List: " + str(leftRectBorderCount))
+        # print(leftRectStartList)
+        # print("top List: " + str(topRectBorderCount))
+        # print(topRectStartList)
         if left == 1:
             # push from left
             rectIndex = self.GetRandomPushy(0, topRectBorderCount)
             min_width = 0  # max(self.newRectMinWidth, leftRectStartList[0]-1)
             newRectMaxX = self.GetRandomNormal(min_width, leftRectStartList[0] - 1)
             newRectMaxY = topRectStartList[rectIndex]-1  # next rect start is the max
-            print("push from left to x/y: " + str(newRectMaxX) + "/" + str(newRectMaxY))
+            # print("push from left to x/y: " + str(newRectMaxX) + "/" + str(newRectMaxY))
         elif left == 0:
             # push from top
             rectIndex = self.GetRandomPushy(0, leftRectBorderCount)
             newRectMaxX = leftRectStartList[rectIndex]-1  # next rect start is the max
             min_width = 0  # max(self.newRectMinWidth, leftRectStartList[0] - 1)
             newRectMaxY = self.GetRandomNormal(min_width, topRectStartList[0] - 1)
-            print("push from top to x/y: " + str(newRectMaxX) + "/" + str(newRectMaxY))
+            # print("push from top to x/y: " + str(newRectMaxX) + "/" + str(newRectMaxY))
 
         self.FillNextPartition(n, newRectMaxX, newRectMaxY)
 
@@ -118,9 +118,9 @@ class RectangleSplitter:
         value = self.randomState.beta(4, 2)
         # value = self.randomState.normal(0.5, 0.1)
         # value = self.randomState.beta(1, 1)  # uniform
-        print ("rand value between " + str(start) + " end " + str(end) + " is: " + str(value))
+        #print ("rand value between " + str(start) + " end " + str(end) + " is: " + str(value))
         value = int(round(start + (value / float(1 / float(end - start)))))
-        print ("rand value between " + str(start) + " end " + str(end) + " is: " + str(value))
+        #print ("rand value between " + str(start) + " end " + str(end) + " is: " + str(value))
         return value
 
     def GetRandomNormal(self, start, end):
@@ -129,7 +129,7 @@ class RectangleSplitter:
         # value = self.randomState.beta(2, 4)
         value = self.randomState.normal(0.5, 0.1)
         # value = self.randomState.beta(1, 1)  # uniform
-        print ("rand value between " + str(start) + " end " + str(end) + " is: " + str(value))
+        #print ("rand value between " + str(start) + " end " + str(end) + " is: " + str(value))
         value = int(round(start + (value / float(1 / float(end - start)))))
-        print ("rand value between " + str(start) + " end " + str(end) + " is: " + str(value))
+        #print ("rand value between " + str(start) + " end " + str(end) + " is: " + str(value))
         return value

@@ -11,7 +11,7 @@ from numpy import *
 from pymclevel import alphaMaterials, MCSchematic, MCLevel, BoundingBox
 from mcplatform import *
 from pymclevel.box import Vector
-
+from rectangleSplitter import RectangleSplitter
 import utilityFunctions as utilityFunctions
 
 #inputs are taken from the user. Here I've just showing labels, as well as letting the user define
@@ -21,6 +21,7 @@ inputs = (
 	("Creator: Jonas Delleske", "label"),
 	("WallMaterial", alphaMaterials.Cobblestone), # the material we want to use to build the mass of the structures
 	("WallWidth", 2),
+	("AveragePartitionArea", 80)
 	)
 
 class CastleConfig:
@@ -36,10 +37,24 @@ def perform(level, selectionBox, options):
 	config = CastleConfig()
 	wallMaterialId = options["WallMaterial"].ID
 	outerWallWidth = int(options["WallWidth"])
+	averagePartitionArea = int(options["AveragePartitionArea"])
 
 	selectionBox = BoundingBox(selectionBox) # DEBUG: to get the class shown correctly in IDE
 	clearBox(level, selectionBox)
 
+	# random innerthings
+	splitter = RectangleSplitter(selectionBox.width, selectionBox.length)
+	partition_count = int(math.floor((selectionBox.width * selectionBox.length) / averagePartitionArea))
+	print("partitions: " + str(partition_count))
+	partitions = splitter.Partition(partition_count)
+	boxList = calculate_bounding_box_list(partitions, selectionBox)
+
+	print(len(boxList))
+	for bbox in boxList:
+		buildWalls(level, bbox, wallMaterialId, 1)
+		buildBattlements(level, bbox, wallMaterialId)
+
+	"""
 	# outer walls
 	outerBox = BoundingBox(selectionBox.origin, (selectionBox.size.x, min(selectionBox.size.y-1, config.maxWallHeight), selectionBox.size.z))
 	buildWalls(level, outerBox, wallMaterialId, 1)	
@@ -68,6 +83,7 @@ def perform(level, selectionBox, options):
 		towerBox = randomBoxFromSelection(selectionBox,4,4,5,selectionBox.height-1,4,4)
 		buildWalls(level, towerBox, wallMaterialId, 1)
 		buildBattlements(level, towerBox, wallMaterialId)
+	"""
 
 def decideGatePosition(box, wallWidth, gateWidth, gateHeight):
 	box = BoundingBox(box) # DEBUG: to get the class shown correctly in IDE
@@ -180,3 +196,30 @@ def randomBoxFromSelection(selectionBox, minX, maxX, minY, maxY, minZ, maxZ):
 	newz = randint(selectionBox.origin.z, selectionBox.maxz-newBoxLength)
 	newOrigin = Vector(newx,newy,newz)
 	return BoundingBox( newOrigin, (newBoxWidth, newBoxHeight,  newBoxLength))
+
+
+def calculate_bounding_box_list(groundMatrix, originalBox):
+	ground_y = originalBox.miny
+	top_y = originalBox.maxy
+	"""
+	groundMatrix is a 2d array of int each number marks a different rectangle
+	"""
+	bounding_box_dict = {}
+	# each entry has a list of 4 values [x_start, z_start, x_end, z_end]
+	for ix, x in enumerate(groundMatrix):
+		for iz, z in enumerate(x):
+			if z in bounding_box_dict:
+				# update the end
+				bounding_box_dict[z][2] = ix
+				bounding_box_dict[z][3] = iz
+			else:
+				# start a new rectangle
+				bounding_box_dict[z] = [ix, iz, ix, iz]
+
+	ground_rectangles = []
+	for rect in bounding_box_dict.values():
+		origin = (rect[0] + originalBox.origin.x, ground_y, rect[1] + originalBox.origin.z)
+		extends = (rect[2] - rect[0], top_y - ground_y, rect[3] - rect[1])
+		ground_rectangles.append(BoundingBox(origin, extends))
+
+	return ground_rectangles
